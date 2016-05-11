@@ -11,12 +11,12 @@ enum Color { black = 0, red = 1 };
 enum Direction { left = 0, right = 1 };
 
 struct RBTree_T {
-    void *data;
+    const void *data;
     unsigned int color : 1;
     T children[2];
 };
 
-T RBTree_new(void *data) {
+T RBTree_new(const void *data) {
     T t;
     NEW(t);
 
@@ -38,7 +38,7 @@ void RBTree_free(T *tree, void (*free_data)(void *data, void *cl),
 	}
 	else {
 	    temp = (*tree)->children[right];
-	    if (free_data) free_data((*tree)->data, cl);
+	    if (free_data) free_data((void *)(*tree)->data, cl);
 	    FREE(*tree);
 	    *tree = temp;
 	}
@@ -87,7 +87,7 @@ static T rotate_double(T tree, enum Direction dir) {
 /**
  * Returns 1 if data was inserted and 0 if not.
  */
-static int insert(T *tree, void *data,
+static int insert(T *tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     int inserted = 0;
     if (*tree == NULL) {
@@ -142,15 +142,15 @@ static int insert(T *tree, void *data,
     return inserted;
 }
 
-int RBTree_insert(T *tree, void *data,
+int RBTree_insert(T *tree, const void *data,
     	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     assert(tree);
     return insert(tree, data, cmp, cl);
 }
 
-void *rb_remove(T *tree, const void *data,
+const void *rb_remove(T *tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
-    void *fd = NULL;
+    const void *fd = NULL;
 
     if (*tree) {
 	struct RBTree_T head = { 0 };
@@ -217,14 +217,14 @@ void *rb_remove(T *tree, const void *data,
     return fd;
 }
 
-void *RBTree_remove(T *tree, const void *data,
+const void *RBTree_remove(T *tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     assert(tree && cmp);
 
     return rb_remove(tree, data, cmp, cl);
 }
 
-void *RBTree_get(T tree, const void *data,
+const void *RBTree_get(T tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     int c;
     while(tree && (c = cmp(tree->data, data, cl))) {
