@@ -48,11 +48,9 @@ int main() {
 	r = rand() % MOD;
 	d = (void *)RBTree_remove(&tree, &r, cmp, NULL);
 	printf("%d (%p): %d\n", r, d, d ? *(int *)d : -1);
-	if (d) FREE(d);
+	if (d) free_data(d, NULL);
     }
 
-    RBTree_traverse(tree, pr, NULL);
-    RBTree_traverse(tree, pr, NULL);
     RBTree_traverse(tree, pr, NULL);
 
     RBTree_free(&tree, free_data, NULL);
