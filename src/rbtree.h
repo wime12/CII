@@ -32,8 +32,8 @@ extern T RBTree_new(void *x);
  *
  * @throw Mem_Failed
  */
-extern T RBTree_copy(T tree,
-	void *(*copy_data)(void *data_data, void *cl), void *cl);
+extern T RBTree_copy(const T tree,
+	void *(*copy_data)(const void *data, void *cl), void *cl);
 
 extern void RBTree_free(T *treep,
 	void (*free_data)(void *data, void *cl), void *cl);
@@ -51,15 +51,15 @@ extern void RBTree_free(T *treep,
  * @throw Mem_Failed
  */
 extern int RBTree_insert(T *treep, void *data,
-    int (*cmp)(void *data1, void *data2, void *cl), void *cl);
+    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
-extern void *RBTree_remove(T *treep, void *data,
-    int (*cmp)(void *data1, void *data2, void *cl), void *cl);
+extern void *RBTree_remove(T *treep, const void *data,
+    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
-extern void *RBTree_get(T tree, void *data,
-    int (*cmp)(void *data1, void *data2, void *cl), void *cl);
+extern void *RBTree_get(const T tree, const void *data,
+    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
-extern void RBTree_traverse(T tree, int (*apply)(void *data, void *cl),
+extern void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
 	void *cl);
 
 #undef T

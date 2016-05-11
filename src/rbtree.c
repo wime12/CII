@@ -54,7 +54,8 @@ static enum Color color(T tree) {
     return tree ? tree->color : black;
 }
 
-T RBTree_copy(T tree, void *(*copy_data)(void *data, void *cl), void *cl) {
+T RBTree_copy(T tree, void *(*copy_data)(const void *data, void *cl),
+	void *cl) {
     if (tree) {
 	T t = RBTree_new(copy_data ? copy_data(tree->data, cl) : tree->data);
 	set_color(t, color(tree));
@@ -87,7 +88,7 @@ static T rotate_double(T tree, enum Direction dir) {
  * Returns 1 if data was inserted and 0 if not.
  */
 static int insert(T *tree, void *data,
-	int (*cmp)(void *data1, void *data2, void *cl), void *cl) {
+	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     int inserted = 0;
     if (*tree == NULL) {
 	*tree = RBTree_new(data);
@@ -121,8 +122,9 @@ static int insert(T *tree, void *data,
 		    t->children[dir2] = rotate_double(g, !last_dir);
 	    }
 
-	    if (cmp(q->data, data, cl) == 0) 
+	    if (cmp(q->data, data, cl) == 0) {
 		break;
+	    }
 
 	    last_dir = dir;
 	    dir = cmp(q->data, data, cl) < 0;
@@ -141,13 +143,13 @@ static int insert(T *tree, void *data,
 }
 
 int RBTree_insert(T *tree, void *data,
-    	int (*cmp)(void *data1, void *data2, void *cl), void *cl) {
+    	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     assert(tree);
     return insert(tree, data, cmp, cl);
 }
 
-void *rb_remove(T *tree, void *data,
-	int (*cmp)(void *data1, void *data2, void *cl), void *cl) {
+void *rb_remove(T *tree, const void *data,
+	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     void *fd = NULL;
 
     if (*tree) {
@@ -215,15 +217,15 @@ void *rb_remove(T *tree, void *data,
     return fd;
 }
 
-void *RBTree_remove(T *tree, void *data,
-	int (*cmp)(void *data1, void *data2, void *cl), void *cl) {
+void *RBTree_remove(T *tree, const void *data,
+	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     assert(tree && cmp);
 
     return rb_remove(tree, data, cmp, cl);
 }
 
-void *RBTree_get(T tree, void *data,
-	int (*cmp)(void *data1, void *data2, void *cl), void *cl) {
+void *RBTree_get(T tree, const void *data,
+	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     int c;
     while(tree && (c = cmp(tree->data, data, cl))) {
 	if (c > 0)
@@ -234,7 +236,7 @@ void *RBTree_get(T tree, void *data,
     return tree;
 }
 
-void RBTree_traverse(T tree, int (*apply)(void *data, void *cl),
+void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
 	void *cl) {
     T temp;
     while (tree) {
@@ -257,29 +259,3 @@ void RBTree_traverse(T tree, int (*apply)(void *data, void *cl),
 	}
     }
 }
-
-void RBTree_preorder(T tree, int (*apply)(void *data, void *cl),
-	void *cl) {
-    T temp;
-    while (tree) {
-	if ((temp = tree->children[left])) {
-	    while (temp->children[right] && temp->children[right] != tree)
-		temp = temp->children[right];
-	    if (temp->children[right]) {
-		if (apply(tree->data, cl)) break;
-		temp->children[right] = tree;
-		tree = tree->children[left];
-	    }
-	    else {
-		temp->children[right] = NULL;
-		tree = tree->children[right];
-	    }
-	}
-	else {
-	    if (apply(tree->data, cl)) break;
-	    tree = tree->children[right];
-	}
-    }
-}
-
-#undef T
