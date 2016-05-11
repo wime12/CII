@@ -7,11 +7,11 @@
 #define COUNT 20
 #define MOD (COUNT * 2)
 
-int cmp(void *d1, void *d2, void *cl) {
+int cmp(const void *d1, const void *d2, void *cl) {
     return *(int *)d1 - *(int *)d2;
 }
 
-int pr(void *d, void *cl) {
+int pr(const void *d, void *cl) {
     printf("%d\n", *(int *)d);
     return 0;
 }
@@ -46,7 +46,7 @@ int main() {
     int r;
     for (int i = 1; i <= COUNT; i++) {
 	r = rand() % MOD;
-	d = RBTree_remove(&tree, &r, cmp, NULL);
+	d = (void *)RBTree_remove(&tree, &r, cmp, NULL);
 	printf("%d (%p): %d\n", r, d, d ? *(int *)d : -1);
 	if (d) FREE(d);
     }
