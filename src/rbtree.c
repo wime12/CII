@@ -259,3 +259,25 @@ void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
 	}
     }
 }
+
+unsigned int RBTree_depth(const T tree) {
+    if (tree) {
+	unsigned int left_height = RBTree_depth(tree->children[left]);
+	unsigned int right_height = RBTree_depth(tree->children[right]);
+	return (left_height > right_height ? left_height : right_height) + 1;
+    }
+    else
+	return 0;
+}
+
+static int inc(const void *x, unsigned int *n) {
+    *n += 1;
+    return 0;
+}
+
+unsigned int RBTree_size(const T tree) {
+    unsigned int n = 0;
+    RBTree_traverse(tree, (int (*)(const void *, void *))inc, &n);
+    return n;
+}
+

@@ -62,6 +62,10 @@ extern const void *RBTree_get(const T tree, const void *data,
 extern void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
 	void *cl);
 
+extern unsigned int RBTree_size(const T tree);
+
+extern unsigned int RBTree_depth(const T tree);
+
 #undef T
 
 #endif

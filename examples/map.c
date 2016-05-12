@@ -6,8 +6,8 @@
 #include "mem.h"
 #include "atom.h"
 
-#define NCHARS 10
-#define NELEMS 1000000
+#define NCHARS 4
+#define NELEMS 100000
 
 void random_string(char *s, const int len) {
     static const char alphanum[] =
@@ -45,10 +45,15 @@ int pr(const void *key, const void *n, void *cl) {
     return 0;
 }
 
-int main(void) {
+void wait_return(const char *message) {
     char *line = NULL;
     size_t j = 0;
+    puts(message);
+    getline(&line, &j, stdin);
+    FREE(line);
+}
 
+int main(void) {
     Map_T map = Map_new(
 	(Map_cmp_fun_T)cmp,
 	NULL,
@@ -57,10 +62,8 @@ int main(void) {
 
     srand(time(NULL));
 
-    puts("### Fill map");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Fill map");
+    printf("map->length = %d\n", Map_length(map));
     char buf[NCHARS];
     int n;
 
@@ -69,38 +72,25 @@ int main(void) {
 	random_string(buf, NCHARS);
 	Map_insert(map, Atom_string(buf), copy_data(&n));
     }
+    printf("map->length = %d\n", Map_length(map));
 
-    puts("### Traverse map");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Traverse map");
     Map_traverse(map, pr, NULL);
 
-    puts("### Copy map -> map2");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Copy map -> map2");
     Map_T map2 = Map_copy(map);
+    printf("map2->length = %d\n", Map_length(map));
 
-    puts("### Free map");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Free map");
     Map_free(&map);
 
-    puts("### Traverse map2");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Traverse map2");
     Map_traverse(map2, pr, NULL);
 
-    puts("### Free map2");
-    getline(&line, &j, stdin);
-    FREE(line); j = 0;
-
+    wait_return("### Free map2");
     Map_free(&map2);
 
-    // printf("map = %p, map2 = %p\n", (void *)map, (void *)map2);
+    printf("map = %p, map2 = %p\n", (void *)map, (void *)map2);
 
     return 0;
 }

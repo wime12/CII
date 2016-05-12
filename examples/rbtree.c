@@ -31,6 +31,9 @@ int main() {
     int inserted;
     void *d;
 
+    printf("tree height = %d, tree depth = %d\n",
+	    RBTree_size(tree), RBTree_depth(tree));
+
     srand(time(NULL));
 
     for (int i = 1; i <= COUNT; i++) {
@@ -40,6 +43,8 @@ int main() {
 	if (!inserted) FREE(n);
     }
 
+    printf("tree height = %d, tree depth = %d\n",
+	    RBTree_size(tree), RBTree_depth(tree));
     RBTree_traverse(tree, pr, NULL);
 
 
@@ -51,6 +56,8 @@ int main() {
 	if (d) free_data(d, NULL);
     }
 
+    printf("tree height = %d, tree depth = %d\n",
+	    RBTree_size(tree), RBTree_depth(tree));
     RBTree_traverse(tree, pr, NULL);
 
     RBTree_free(&tree, free_data, NULL);
