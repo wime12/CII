@@ -2,6 +2,7 @@
 #include "assert.h"
 #include "mem.h"
 #include "rbtree.h"
+#include <stdlib.h>
 
 #define T Map_T
 
@@ -12,12 +13,12 @@ struct assoc {
 
 struct Map_T {
     RBTree_T tree;
-    int (*cmp)(const void *key1, const void *key2);
-    void *(*copy_key)(const void *key);
-    void *(*copy_data)(const void *data);
+    Map_cmp_fun_T cmp;
+    Map_copy_fun_T copy_key;
+    Map_copy_fun_T copy_data;
     struct assoc *(*copy)(const struct assoc *a, const T map);
-    void (*free_key)(void *key);
-    void (*free_data)(void *data);
+    Map_free_fun_T free_key;
+    Map_free_fun_T free_data;
     void (*free)(struct assoc *a, const T map);
 };
 
@@ -61,7 +62,7 @@ static void free_key_only(struct assoc *a, T map) {
 }
 
 static void free_data_only(struct assoc *a, T map) {
-    map->free_data((void *)a->key);
+    map->free_data((void *)a->data);
     FREE(a);
 }
 
@@ -69,16 +70,15 @@ static void free_assoc_only(struct assoc *a, T map) {
     FREE(a);
 }
 
-T Map_new(int (*cmp)(const void *key1, const void *key2),
-          void *(*copy_key)(const void *key),
-          void *(*copy_data)(const void *data),
-	  void (*free_key)(void *key),
-	  void (*free_data)(void *data)) {
+T Map_new(Map_cmp_fun_T cmp,
+          Map_copy_fun_T copy_key, Map_copy_fun_T copy_data,
+	  Map_free_fun_T free_key, Map_free_fun_T free_data) {
     assert(cmp);
     T map;
     NEW(map);
     *map = (struct Map_T) {
 	.tree = NULL,
+	.cmp = cmp,
 	.copy_key = copy_key,
 	.copy_data = copy_data,
 	.free_key = free_key,
@@ -98,7 +98,7 @@ T Map_new(int (*cmp)(const void *key1, const void *key2),
 	map->free = free_assoc;
     else if (free_key)
 	map->free = free_key_only;
-    else if (free_key)
+    else if (free_data)
 	map->free = free_data_only;
     else
 	map->free = free_assoc_only;
@@ -125,8 +125,13 @@ T Map_copy(T map) {
 }
 
 void Map_free(T *mapp) {
+    assert(mapp && *mapp);
     RBTree_free(&(*mapp)->tree, (void (*)(void *, void *))(*mapp)->free, *mapp);
     FREE(*mapp);
+}
+
+static int map_cmp(const struct assoc *a1, const struct assoc *a2, T map) {
+    return map->cmp(a1->key, a2->key);
 }
 
 int Map_insert(T map, const void *key, const void *data) {
@@ -135,14 +140,14 @@ int Map_insert(T map, const void *key, const void *data) {
     NEW(a);
     *a = (struct assoc) { .key = key, .data = data };
     inserted = RBTree_insert(&map->tree, a,
-	(int (*)(const void *, const void *, void *))map->cmp, map);
+	(int (*)(const void *, const void *, void *))map_cmp, map);
     if (!inserted) FREE(a);
     return inserted;
 }
 
 const void *Map_remove(T map, const void *key) {
     const struct assoc *a = RBTree_remove(&map->tree, key,
-	(int (*)(const void *, const void *, void *))map->cmp, map);
+	(int (*)(const void *, const void *, void *))map_cmp, map);
     return a ? a->data : NULL;
 }
 
@@ -162,9 +167,7 @@ int apply_assoc(struct assoc *a, struct apply_cl *apply_cl) {
     return (apply_cl->apply)(a->key, a->data, apply_cl->cl);
 }
 
-void Map_traverse(const T map,
-	int(*apply)(const void *key, const void *data, void *cl),
-	void *cl) {
+void Map_traverse(const T map, Map_apply_fun_T apply, void *cl) {
     struct apply_cl acl = (struct apply_cl){ .apply = apply, .cl = cl };
     RBTree_traverse(map->tree, (int (*)(const void *, void *))apply_assoc, &acl);
 }

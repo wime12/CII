@@ -60,7 +60,7 @@ T RBTree_copy(T tree, void *(*copy_data)(const void *data, void *cl),
 	T t = RBTree_new(copy_data ? copy_data(tree->data, cl) : tree->data);
 	set_color(t, color(tree));
 	t->children[left] = RBTree_copy(tree->children[left], copy_data, cl);
-	t->children[left] = RBTree_copy(tree->children[left], copy_data, cl);
+	t->children[right] = RBTree_copy(tree->children[right], copy_data, cl);
 	return t;
     }
     else
