@@ -11,7 +11,7 @@ struct assoc {
     const void *data;
 };
 
-struct Map_T {
+struct T {
     RBTree_T tree;
     size_t len;
     Map_cmp_fun_T cmp;
