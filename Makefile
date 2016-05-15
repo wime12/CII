@@ -15,6 +15,7 @@ install: all
 	cp src/*.h $(PREFIX)/include/cii
 
 clean: clean-release clean-debug
+	rm -f a.*
 
 clean-release:
 	cd build/release && $(MAKE) clean

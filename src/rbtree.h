@@ -33,7 +33,7 @@ extern T RBTree_new(const void *data);
  * @throw Mem_Failed
  */
 extern T RBTree_copy(const T tree,
-	void *(*copy_data)(const void *data, void *cl), void *cl);
+    void *(*copy_data)(const void *data, void *cl), void *cl);
 
 extern void RBTree_free(T *treep,
 	void (*free_data)(void *data, void *cl), void *cl);

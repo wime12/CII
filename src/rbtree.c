@@ -45,12 +45,11 @@ void RBTree_free(T *tree, void (*free_data)(void *data, void *cl),
     }
 }
 
-static void set_color(T tree, enum Color color) {
-    assert(tree);
+inline static void set_color(T tree, enum Color color) {
     tree->color = color;
 }
 
-static enum Color color(T tree) {
+inline static enum Color color(T tree) {
     return tree ? tree->color : black;
 }
 
@@ -67,7 +66,7 @@ T RBTree_copy(T tree, void *(*copy_data)(const void *data, void *cl),
 	return NULL;
 }
 
-static T rotate_single(T tree, enum Direction dir) {
+inline static T rotate_single(T tree, enum Direction dir) {
     T save = tree->children[!dir];
 
     tree->children[!dir] = save->children[dir];
@@ -79,7 +78,7 @@ static T rotate_single(T tree, enum Direction dir) {
     return save;
 }
 
-static T rotate_double(T tree, enum Direction dir) {
+inline static T rotate_double(T tree, enum Direction dir) {
     tree->children[!dir] = rotate_single(tree->children[!dir], !dir);
     return rotate_single(tree, dir);
 }
@@ -148,7 +147,7 @@ int RBTree_insert(T *tree, const void *data,
     return insert(tree, data, cmp, cl);
 }
 
-const void *rb_remove(T *tree, const void *data,
+static const void *rb_remove(T *tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
     const void *fd = NULL;
 

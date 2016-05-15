@@ -7,7 +7,7 @@
 #include "mem.h"
 #include "atom.h"
 
-#define NCHARS 4
+#define NCHARS 8
 #define NELEMS 1000000
 
 void random_string(char *s, const int len) {
