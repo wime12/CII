@@ -275,7 +275,7 @@ void *NTCursor_set(T cursor, void *data) {
 
 void NTCursor_prepend_child(T cursor, void *data) {
     assert(cursor && cursor->tree);
-    T new_tree = NTree_new(data);
+    NTree_T new_tree = NTree_new(data);
     new_tree->child = cursor->tree->child;
     new_tree->prev = cursor->tree;
     new_tree->child->prev = new_tree;
@@ -286,12 +286,17 @@ void NTCursor_prepend_child(T cursor, void *data) {
  * Append a child to the list of children at the current position.
  * The cursor stays at the current position.
  */
-extern void NTCursor_append_child(T cursor, void *data) {
+void NTCursor_append_child(T cursor, void *data) {
+    T new_cursor = NTCursor_new(cursor->tree);
+    NTCursor_first_child(new_cursor);
+    NTCursor_last(new_cursor);
+    NTCursor_insert_after(new_cursor, data);
+    NTCursor_free(new_cursor);
 }
 
 void NTCursor_insert_before(T cursor, void *data) {
     assert(cursor && cursor->tree);
-    T new_tree = NTree_new(data);
+    NTree_T new_tree = NTree_new(data);
     new_tree->sibling = cursor->tree;
     if (prev_is_parent(cursor->tree) {
 	new_tree->prev = cursor->tree->prev;
@@ -300,9 +305,9 @@ void NTCursor_insert_before(T cursor, void *data) {
     cursor->tree->prev = new_tree; 
 }
 
-extern void NTCursor_insert_after(T cursor, void *data) {
+void NTCursor_insert_after(T cursor, void *data) {
     assert(cursor && cursor->tree);
-    T new_tree = NTree_new(data);
+    NTree_T new_tree = NTree_new(data);
     new_tree->sibling = cursor->tree->sibling;
     cursor->tree->sibling = new_tree;
 }
