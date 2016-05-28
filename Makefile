@@ -1,4 +1,12 @@
 MAKE = bmake
+SRCS = ap.c arena.c arith.c array.c assert.c atom.c bit.c btree.c \
+    except.c fmt.c list.c mem.c mp.c rbtree.c ring.c seq.c set.c \
+    stack.c str.c table.c text.c uarray.c xp.c map.c ntree.c
+SRCDIR = ../../src
+OBJS = $(SRCS:.c=.o)
+INCLUDES=-I../../src
+
+export SRCS SRCDIR OBJS INCLUDES
 
 release:
 	cd build/release && $(MAKE)

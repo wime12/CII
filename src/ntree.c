@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <ntree.h>
 #include "mem.h"
+#include "assert.h"
 
 #define T NTree_T
 
 struct NTree_T {
     void *data;
-    T parent, child, sibling;
+    T prev, child, sibling;
 };
 
 T NTree_new(void *data) {
@@ -14,7 +15,7 @@ T NTree_new(void *data) {
     NEW(tree);
     *tree = (struct NTree_T) {
 	.data = data,
-	.parent = NULL,
+	.prev = NULL,
 	.child = NULL,
 	.sibling = NULL,
     };
@@ -22,13 +23,13 @@ T NTree_new(void *data) {
 }
 
 static T copy(const T tree, void *(*copy_data)(const void *data, void *cl),
-	void *cl, T parent) {
+	void *cl, T prev) {
     if (tree) {
 	T new_tree;
 	NEW(new_tree);
 	*new_tree = (struct NTree_T) {
 	    .data = copy_data ? copy_data(tree->data, cl) : tree->data,
-	    .parent = parent,
+	    .prev = prev,
 	    .child = copy(tree->child, copy_data, cl, new_tree),
 	    .sibling = copy(tree->sibling, copy_data, cl, new_tree)
 	};
@@ -45,12 +46,12 @@ T NTree_copy(const T tree,
 
 void NTree_free(T *treep,
     	void *(free_data)(void *data, void *cl), void *cl) {
-    T tree = *treep, parent;
+    T tree = *treep, prev;
     while (tree) {
 	if (tree->sibling == NULL & tree->child == NULL) {
-	    parent = tree->parent;
+	    prev = tree->prev;
 	    FREE(tree);
-	    tree = parent;
+	    tree = prev;
 	}
 	else if (tree->child) 
 	    tree = tree->child;
@@ -151,15 +152,19 @@ void NTree_traverse(T tree,
 #define T NTCursor_T
 
 struct T {
-    NTree_T current;
-}
+    NTree_T tree;
+};
 
 T NTCursor_new(NTree_T tree) {
     assert(tree);
     T cursor;
     NEW(cursor);
-    cursor->current = tree;
+    cursor->tree = tree;
     return cursor;
+}
+
+void NTCursor_free(NTCursor_T *cursorp) {
+    FREE(*cursorp);
 }
 
 inline static int prev_is_parent(NTree_T tree) {
@@ -179,13 +184,13 @@ inline static int is_root(NTree_T tree) {
 void NTCursor_first(T cursor) {
     assert(cursor && cursor->tree);
     while (prev_is_sibling(cursor->tree)) {
-	cursor->tree == prev;
+	cursor->tree = cursor->tree->prev;
     }
 }
 
 int NTCursor_next(T cursor) {
     assert(cursor && cursor->tree);
-    if (cursor->tree->child)
+    if (cursor->tree->child) {
 	cursor->tree = cursor->tree->child;
 	return 1;
     }
@@ -210,9 +215,20 @@ void NTCursor_last(T cursor) {
     }
 }
 
-extern T NTCursor_move_to(T cursor, void *data,
+static int find_entry(NTree_T tree, void *data,
+        int (*cmp)(const void *data1, const void *data2, void *cl),
+	void *cl) {
+    return tree
+	   && ((cmp(data, tree->data, cl) == 0)
+	       || find_entry(tree->child, data, cmp, cl)
+	       || find_entry(tree->sibling, data, cmp, cl));
+}
+
+int NTCursor_find(T cursor, void *data,
    	int (*cmp)(const void *data1, const void *data2, void *cl),
-	    void *cl) {
+        void *cl) {
+    assert(cursor && cursor->tree);
+    return find_entry(cursor->tree, data, cmp, cl);
 }
 
 void NTCursor_root(T cursor) {
@@ -221,18 +237,14 @@ void NTCursor_root(T cursor) {
 	cursor->tree = cursor->tree->prev;
 }
 
-/**
- * Move to the first child node from the parent.
- * Returns NULL if there is none.
- */
-extern T NTCursor_first_child(T cursor) {
+int NTCursor_first_child(T cursor) {
     assert(cursor && cursor->tree);
     if (cursor->tree->child) {
 	cursor->tree = cursor->tree->child;
-	return cursor->tree;
+	return 1;
     }
     else
-	return NULL;
+	return 0;
 }
 
 // Tests
@@ -248,8 +260,8 @@ int NTCursor_on_last(T cursor) {
 }
 
 int NTCursor_on_root(T cursor) {
-    assert(cursor && cursor->tree);
-    return cursor->tree->prev == NULL;
+    assert(cursor);
+    return is_root(cursor->tree);
 }
 
 int NTCursor_has_children(T cursor) {
@@ -291,14 +303,14 @@ void NTCursor_append_child(T cursor, void *data) {
     NTCursor_first_child(new_cursor);
     NTCursor_last(new_cursor);
     NTCursor_insert_after(new_cursor, data);
-    NTCursor_free(new_cursor);
+    NTCursor_free(&new_cursor);
 }
 
 void NTCursor_insert_before(T cursor, void *data) {
     assert(cursor && cursor->tree);
     NTree_T new_tree = NTree_new(data);
     new_tree->sibling = cursor->tree;
-    if (prev_is_parent(cursor->tree) {
+    if (prev_is_parent(cursor->tree)) {
 	new_tree->prev = cursor->tree->prev;
 	cursor->tree->prev->child = new_tree;
     }
@@ -312,15 +324,21 @@ void NTCursor_insert_after(T cursor, void *data) {
     cursor->tree->sibling = new_tree;
 }
 
-/**
- * Remove the current node if it has no children.
- * The data of the current node is returned if the node
- * was removed or NULL if it could not be removed.
- * The cursor moves to the next sibling if there is one or
- * to the previous sibling if there is no next sibling but a
- * previous one or to the parent if there is neither a
- * next nor a previous sibling.
- */
-extern void *NTCursor_remove(T cursor);
+void *NTCursor_remove(T cursor) {
+    assert(cursor && cursor->tree);
+    NTree_T tree = cursor->tree;
+    if (tree->child)
+	return NULL;
+    else {
+	void *data = tree->data;
+	if (prev_is_sibling(tree))
+	    tree->prev->sibling = tree->sibling;
+        else if (prev_is_parent(tree))
+	    tree->prev->child = tree->sibling;
+	cursor->tree = tree->sibling ? tree->sibling : tree->prev;
+	FREE(tree);
+	return data;
+    }
+}
 
 #undef T
