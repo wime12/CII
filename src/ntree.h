@@ -100,7 +100,7 @@ extern unsigned int NTree_occurrances(const T tree, void *data,
     int (*comp)(const void *data1, const void *data2, void *cl), void *cl);
 
 /**
- * @brief Apply a function the data of each entry in a tree.
+ * @brief Apply a function to the data of each entry in a tree.
  *
  * @param tree The root of the tree
  * @param apply The function to apply
@@ -129,7 +129,8 @@ extern T NTCursor_new(NTree_T tree);
 // Movement
 
 /**
- * Ensures that the cursor is on the first sibling.
+ * Ensures that the cursor is on the first sibling of the current
+ * position.
  *
  * @param cursor The cursor
  */
@@ -145,7 +146,7 @@ extern void NTCursor_first(T cursor);
 extern int NTCursor_next(T cursor);
 
 /**
- * Move to the previous sibling.
+ * Move to the previous sibling of the current position.
  *
  * @param cursor The cursor
  *

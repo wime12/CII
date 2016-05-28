@@ -5,8 +5,9 @@ SRCS = ap.c arena.c arith.c array.c assert.c atom.c bit.c btree.c \
 SRCDIR = ../../src
 OBJS = $(SRCS:.c=.o)
 INCLUDES=-I../../src
+TARGET = libcii.a
 
-export SRCS SRCDIR OBJS INCLUDES
+.export SRCS SRCDIR OBJS INCLUDES TARGET
 
 release:
 	cd build/release && $(MAKE)

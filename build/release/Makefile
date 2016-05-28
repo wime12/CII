@@ -1,5 +1,4 @@
 CCFLAGS = -Wall -pedantic -O2
-TARGET = libcii.a
 
 $(TARGET): $(OBJS)
 	ar -cr $(.TARGET) $(.ALLSRC)
