@@ -8,7 +8,7 @@
 typedef int (*Map_cmp_fun_T)(const void *, const void *);
 typedef void *(*Map_copy_fun_T)(const void *);
 typedef void (*Map_free_fun_T)(void *);
-typedef int (*Map_apply_fun_T)(const void *, const void *, void *);
+typedef void (*Map_apply_fun_T)(const void *, const void *, void *);
 
 typedef struct T *T;
 

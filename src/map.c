@@ -175,18 +175,18 @@ const void *Map_get(const T map, const void *key) {
 }
 
 struct apply_cl {
-    int (*apply)(const void *key, const void *data, void *cl);
+    void (*apply)(const void *key, const void *data, void *cl);
     void *cl;
 };
 
-int apply_assoc(struct assoc *a, struct apply_cl *apply_cl) {
-    return (apply_cl->apply)(a->key, a->data, apply_cl->cl);
+void apply_assoc(struct assoc *a, struct apply_cl *apply_cl) {
+    apply_cl->apply(a->key, a->data, apply_cl->cl);
 }
 
 void Map_traverse(const T map, Map_apply_fun_T apply, void *cl) {
     struct apply_cl acl = (struct apply_cl){ .apply = apply, .cl = cl };
     RBTree_traverse(map->tree,
-	(int (*)(const void *, void *))apply_assoc, &acl);
+	(void (*)(const void *, void *))apply_assoc, &acl);
 }
 
 #undef T

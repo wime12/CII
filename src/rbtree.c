@@ -235,7 +235,7 @@ const void *RBTree_get(T tree, const void *data,
     return tree;
 }
 
-void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
+void RBTree_traverse(T tree, void (*apply)(const void *data, void *cl),
 	void *cl) {
     T temp;
     while (tree) {
@@ -248,12 +248,12 @@ void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
 	    }
 	    else {
 		temp->children[right] = NULL;
-		if (apply(tree->data, cl)) break;
+		apply(tree->data, cl);
 		tree = tree->children[right];
 	    }
 	}
 	else {
-	    if (apply(tree->data, cl)) break;
+	    apply(tree->data, cl);
 	    tree = tree->children[right];
 	}
     }
@@ -269,14 +269,13 @@ unsigned int RBTree_depth(const T tree) {
 	return 0;
 }
 
-static int inc(const void *x, unsigned int *n) {
+static void inc(const void *x, unsigned int *n) {
     *n += 1;
-    return 0;
 }
 
 unsigned int RBTree_size(const T tree) {
     unsigned int n = 0;
-    RBTree_traverse(tree, (int (*)(const void *, void *))inc, &n);
+    RBTree_traverse(tree, (void (*)(const void *, void *))inc, &n);
     return n;
 }
 

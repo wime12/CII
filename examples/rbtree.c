@@ -11,9 +11,8 @@ int cmp(const void *d1, const void *d2, void *cl) {
     return *(int *)d1 - *(int *)d2;
 }
 
-int pr(const void *d, void *cl) {
+void pr(const void *d, void *cl) {
     printf("%d\n", *(int *)d);
-    return 0;
 }
 
 void free_data(void *d, void *cl) {

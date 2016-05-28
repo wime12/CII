@@ -59,7 +59,7 @@ extern const void *RBTree_remove(T *treep, const void *data,
 extern const void *RBTree_get(const T tree, const void *data,
     int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
-extern void RBTree_traverse(T tree, int (*apply)(const void *data, void *cl),
+extern void RBTree_traverse(T tree, void (*apply)(const void *data, void *cl),
 	void *cl);
 
 extern unsigned int RBTree_size(const T tree);

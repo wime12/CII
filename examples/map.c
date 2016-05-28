@@ -8,7 +8,7 @@
 #include "atom.h"
 
 #define NCHARS 8
-#define NELEMS 1000000
+#define NELEMS 100000
 
 void random_string(char *s, const int len) {
     static const char alphanum[] =
@@ -49,8 +49,7 @@ void free_data(int *data) {
     FREE(data);
 }
 
-int pr(const void *key, const void *n, void *cl) {
-    return 0;
+void pr(const void *key, const void *n, void *cl) {
 }
 
 void wait_return(const char *message) {
