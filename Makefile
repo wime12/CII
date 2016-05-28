@@ -1,4 +1,4 @@
-MAKE = bmake
+MAKE = make
 
 release:
 	cd build/release && $(MAKE)
