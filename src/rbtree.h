@@ -35,16 +35,38 @@ extern T RBTree_new(const void *data);
 extern T RBTree_copy(const T tree,
     void *(*copy_data)(const void *data, void *cl), void *cl);
 
+/**
+ * @brief Frees a tree.
+ *
+ * Free the memory occupied by the tree and set the
+ * tree to NULL. If the `free_data` parameter is not NULL
+ * then also the data in the tree will be freed. `cl` is
+ * passed unaltered to `free_data`.
+ *
+ * @param treep A pointer to the tree
+ * @param free_data A function used to free the data.
+ * @param cl Passed unaltered to `free_data`
+ */
 extern void RBTree_free(T *treep,
 	void (*free_data)(void *data, void *cl), void *cl);
 
 /**
  * @brief Inserts data into the tree
  *
- * @arg treep Pointer to the root of the tree (may be altered)
- * @arg data pointer to the data structure
- * @arg cmp comparison function
- * @arg cl pointer to data which will be passed unchanged to cmp
+ * Insert data into the tree preserving the ordering prescribed
+ * by the `cmp` function. The root of the tree may be altered.
+ * The comparison function returns an integer < 0 if data1 is
+ * smaller data2, 0 if data1 is equal to data2 and an integer > 0
+ * if data1 is bigger than data2.
+ *
+ * If the data was not inserted because one entry was equal to the 
+ * new data, then the old entry is retained and the function returns
+ * 0. If the data was inserted the function returns 1.
+ *
+ * @param treep Pointer to the root of the tree, contains the new root of the tree after the insertion.
+ * @param data Pointer to the data
+ * @param cmp Comparison function
+ * @param cl pointer to data which will be passed unchanged to cmp
  *
  * @return 1 if node was inserted 0 if not
  *
@@ -53,17 +75,69 @@ extern void RBTree_free(T *treep,
 extern int RBTree_insert(T *treep, const void *data,
     int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
+/**
+ * @brief Removes data from the tree
+ *
+ * Removes an entry from the tree if the comparison function `cmp`
+ * called on the given data and the data of the entry return 0. The
+ * function returns the removed data or NULL if nothing was removed.
+ * `treep` contains the new root of the tree after the function finishes.
+ *
+ * @param treep A pointer to the root of the tree.
+ * @param data A pointer to the data to be compared with the entries
+ * @param cmp The comparison function
+ * @param cl Data passed unchanged to cmp
+ *
+ * @return NULL if nothing was removed or the removed data
+ */
 extern const void *RBTree_remove(T *treep, const void *data,
     int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
+/**
+ * @brief Get data from the tree
+ *
+ * Get data from the tree entry for which `cmp` applied on the given
+ * data and the data of the entry returns 0.
+ *
+ * @param tree The root of the tree
+ * @param data The data to be compared with the data of the tree entries
+ * @param cmp The comparison function
+ * @param cl Data passed unchanged to `cmp`
+ *
+ * @return The required data
+ */
 extern const void *RBTree_get(const T tree, const void *data,
     int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
 
+/**
+ * @brief Applies a function to all entries in the tree in order.
+ *
+ * The function `apply` is called on each data entry in the tree in
+ * increasing order.
+ *
+ * @param tree The root of the tree
+ * @param apply The function to be applied on each entry
+ * @param cl Data passed unchanged to `apply`
+ */
 extern void RBTree_traverse(T tree, void (*apply)(const void *data, void *cl),
-	void *cl);
+    void *cl);
 
+/**
+ * Calculate the number of entries in the tree.
+ *
+ * @param tree The root of the tree
+ *
+ * @return The number of entries in the tree.
+ */
 extern unsigned int RBTree_size(const T tree);
 
+/**
+ * Calculate the depth of the tree.
+ *
+ * @param tree The root of the tree
+ *
+ * @return The depth of the tree
+ */
 extern unsigned int RBTree_depth(const T tree);
 
 #undef T
