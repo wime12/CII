@@ -81,9 +81,6 @@ inline static T rotate_double(T tree, enum Direction dir) {
     return rotate_single(tree, dir);
 }
 
-/**
- * Returns 1 if data was inserted and 0 if not.
- */
 static int insert(T *tree, const void *data, RBTree_compare_fun_T cmp,
 	void *cl) {
     int inserted = 0;

@@ -129,7 +129,7 @@ extern const void *RBTree_get(const T tree, const void *data,
 extern void RBTree_traverse(T tree, RBTree_apply_fun_T apply, void *cl);
 
 /**
- * Calculate the number of entries in the tree.
+ * @brief Calculate the number of entries in the tree.
  *
  * @param tree The root of the tree
  *
@@ -138,7 +138,7 @@ extern void RBTree_traverse(T tree, RBTree_apply_fun_T apply, void *cl);
 extern unsigned int RBTree_size(const T tree);
 
 /**
- * Calculate the depth of the tree.
+ * @brief Calculate the depth of the tree.
  *
  * @param tree The root of the tree
  *
