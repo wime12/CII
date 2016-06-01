@@ -25,8 +25,7 @@ T RBTree_new(const void *data) {
     return t;
 }
 
-void RBTree_free(T *tree, void (*free_data)(void *data, void *cl),
-	void *cl) {
+void RBTree_free(T *tree, RBTree_free_data_fun_T free_data, void *cl) {
     assert(tree);
     T temp;
     while (*tree) {
@@ -53,8 +52,7 @@ inline static enum Color color(T tree) {
     return tree ? tree->color : black;
 }
 
-T RBTree_copy(T tree, void *(*copy_data)(const void *data, void *cl),
-	void *cl) {
+T RBTree_copy(T tree, RBTree_copy_data_fun_T copy_data, void *cl) {
     if (tree) {
 	T t = RBTree_new(copy_data ? copy_data(tree->data, cl) : tree->data);
 	set_color(t, color(tree));
@@ -86,8 +84,8 @@ inline static T rotate_double(T tree, enum Direction dir) {
 /**
  * Returns 1 if data was inserted and 0 if not.
  */
-static int insert(T *tree, const void *data,
-	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
+static int insert(T *tree, const void *data, RBTree_compare_fun_T cmp,
+	void *cl) {
     int inserted = 0;
     if (*tree == NULL) {
 	*tree = RBTree_new(data);
@@ -141,14 +139,14 @@ static int insert(T *tree, const void *data,
     return inserted;
 }
 
-int RBTree_insert(T *tree, const void *data,
-    	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
+int RBTree_insert(T *tree, const void *data, RBTree_compare_fun_T cmp,
+	void *cl) {
     assert(tree);
     return insert(tree, data, cmp, cl);
 }
 
 static const void *rb_remove(T *tree, const void *data,
-	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
+	RBTree_compare_fun_T cmp, void *cl) {
     const void *fd = NULL;
 
     if (*tree) {
@@ -216,15 +214,15 @@ static const void *rb_remove(T *tree, const void *data,
     return fd;
 }
 
-const void *RBTree_remove(T *tree, const void *data,
-	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
+const void *RBTree_remove(T *tree, const void *data, RBTree_compare_fun_T cmp,
+	void *cl) {
     assert(tree && cmp);
 
     return rb_remove(tree, data, cmp, cl);
 }
 
-const void *RBTree_get(T tree, const void *data,
-	int (*cmp)(const void *data1, const void *data2, void *cl), void *cl) {
+const void *RBTree_get(T tree, const void *data, RBTree_compare_fun_T cmp,
+	void *cl) {
     int c;
     while(tree && (c = cmp(tree->data, data, cl))) {
 	if (c > 0)
@@ -235,8 +233,7 @@ const void *RBTree_get(T tree, const void *data,
     return tree;
 }
 
-void RBTree_traverse(T tree, void (*apply)(const void *data, void *cl),
-	void *cl) {
+void RBTree_traverse(T tree, RBTree_apply_fun_T apply, void *cl) {
     T temp;
     while (tree) {
 	if ((temp = tree->children[left])) {
@@ -275,7 +272,7 @@ static void inc(const void *x, unsigned int *n) {
 
 unsigned int RBTree_size(const T tree) {
     unsigned int n = 0;
-    RBTree_traverse(tree, (void (*)(const void *, void *))inc, &n);
+    RBTree_traverse(tree, (RBTree_apply_fun_T)inc, &n);
     return n;
 }
 

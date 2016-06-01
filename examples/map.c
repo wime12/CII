@@ -62,7 +62,7 @@ void wait_return(const char *message) {
 
 int main(void) {
     Map_T map = Map_new(
-	(Map_cmp_fun_T)cmp,
+	(Map_compare_fun_T)cmp,
 	(Map_copy_fun_T)copy_key, (Map_copy_fun_T)copy_data,
 	(Map_free_fun_T)free_key, (Map_free_fun_T)free_data);
 

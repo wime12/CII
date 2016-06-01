@@ -5,6 +5,15 @@
 
 typedef struct T *T;
 
+typedef void *(*RBTree_copy_data_fun_T)(const void *data, void *cl);
+
+typedef void (*RBTree_free_data_fun_T)(void *data, void *cl);
+
+typedef int (*RBTree_compare_fun_T)(const void *data1,
+    const void *data2, void *cl);
+
+typedef void (*RBTree_apply_fun_T)(const void *data, void *cl);
+
 /**
  * @brief Makes a new node initialized with data.
  *
@@ -32,8 +41,7 @@ extern T RBTree_new(const void *data);
  *
  * @throw Mem_Failed
  */
-extern T RBTree_copy(const T tree,
-    void *(*copy_data)(const void *data, void *cl), void *cl);
+extern T RBTree_copy(const T tree, RBTree_copy_data_fun_T copy_data, void *cl);
 
 /**
  * @brief Frees a tree.
@@ -47,14 +55,13 @@ extern T RBTree_copy(const T tree,
  * @param free_data A function used to free the data.
  * @param cl Passed unaltered to `free_data`
  */
-extern void RBTree_free(T *treep,
-	void (*free_data)(void *data, void *cl), void *cl);
+extern void RBTree_free(T *treep, RBTree_free_data_fun_T free_data, void *cl);
 
 /**
  * @brief Inserts data into the tree
  *
  * Insert data into the tree preserving the ordering prescribed
- * by the `cmp` function. The root of the tree may be altered.
+ * by a comparison function. The root of the tree may be altered.
  * The comparison function returns an integer < 0 if data1 is
  * smaller data2, 0 if data1 is equal to data2 and an integer > 0
  * if data1 is bigger than data2.
@@ -72,8 +79,8 @@ extern void RBTree_free(T *treep,
  *
  * @throw Mem_Failed
  */
-extern int RBTree_insert(T *treep, const void *data,
-    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
+extern int RBTree_insert(T *treep, const void *data, RBTree_compare_fun_T cmp,
+    void *cl);
 
 /**
  * @brief Removes data from the tree
@@ -91,7 +98,7 @@ extern int RBTree_insert(T *treep, const void *data,
  * @return NULL if nothing was removed or the removed data
  */
 extern const void *RBTree_remove(T *treep, const void *data,
-    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
+    RBTree_compare_fun_T cmp, void *cl);
 
 /**
  * @brief Get data from the tree
@@ -107,7 +114,7 @@ extern const void *RBTree_remove(T *treep, const void *data,
  * @return The required data
  */
 extern const void *RBTree_get(const T tree, const void *data,
-    int (*cmp)(const void *data1, const void *data2, void *cl), void *cl);
+    RBTree_compare_fun_T cmp, void *cl);
 
 /**
  * @brief Applies a function to all entries in the tree in order.
@@ -119,8 +126,7 @@ extern const void *RBTree_get(const T tree, const void *data,
  * @param apply The function to be applied on each entry
  * @param cl Data passed unchanged to `apply`
  */
-extern void RBTree_traverse(T tree, void (*apply)(const void *data, void *cl),
-    void *cl);
+extern void RBTree_traverse(T tree, RBTree_apply_fun_T apply, void *cl);
 
 /**
  * Calculate the number of entries in the tree.
