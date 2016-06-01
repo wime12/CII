@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "assert.h"
 #include "except.h"
 
@@ -11,15 +12,15 @@ void Except_raise(const T *e, const char *file, int line) {
     Except_Frame *p = Except_stack;
     assert(e);
     if (p == NULL) {
-	fprintf(stderr, "Uncaught exception");
+	fprintf(STDERR_FILENO, "Uncaught exception");
 	if (e->reason)
-	    fprintf(stderr, " %s", e->reason);
+	    fprintf(STDERR_FILENO, " %s", e->reason);
 	else
-	    fprintf(stderr, " at 0x%p", (void *)e);
+	    fprintf(STDERR_FILENO, " at 0x%p", (void *)e);
 	if (file && line > 0)
-	    fprintf(stderr, " raised at %s:%d\n", file, line);
-	fprintf(stderr, "aborting...\n");
-	fflush(stderr);
+	    fprintf(STDERR_FILENO, " raised at %s:%d\n", file, line);
+	fprintf(STDERR_FILENO, "aborting...\n");
+	fflush(STDERR_FILENO);
 	abort();
     }
     p->exception = e;
