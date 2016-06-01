@@ -12,15 +12,15 @@ void Except_raise(const T *e, const char *file, int line) {
     Except_Frame *p = Except_stack;
     assert(e);
     if (p == NULL) {
-	fprintf(STDERR_FILENO, "Uncaught exception");
+	fprintf(stderr, "Uncaught exception");
 	if (e->reason)
-	    fprintf(STDERR_FILENO, " %s", e->reason);
+	    fprintf(stderr, " %s", e->reason);
 	else
-	    fprintf(STDERR_FILENO, " at 0x%p", (void *)e);
+	    fprintf(stderr, " at 0x%p", (void *)e);
 	if (file && line > 0)
-	    fprintf(STDERR_FILENO, " raised at %s:%d\n", file, line);
-	fprintf(STDERR_FILENO, "aborting...\n");
-	fflush(STDERR_FILENO);
+	    fprintf(stderr, " raised at %s:%d\n", file, line);
+	fprintf(stderr, "aborting...\n");
+	fflush(stderr);
 	abort();
     }
     p->exception = e;
