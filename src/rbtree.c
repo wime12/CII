@@ -227,7 +227,7 @@ const void *RBTree_get(T tree, const void *data, RBTree_compare_fun_T cmp,
 	else
 	    tree = tree->children[right];
     }
-    return tree;
+    return tree ? tree->data : NULL;
 }
 
 void RBTree_traverse(T tree, RBTree_apply_fun_T apply, void *cl) {

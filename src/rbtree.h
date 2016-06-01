@@ -15,19 +15,6 @@ typedef int (*RBTree_compare_fun_T)(const void *data1,
 typedef void (*RBTree_apply_fun_T)(const void *data, void *cl);
 
 /**
- * @brief Makes a new node initialized with data.
- *
- * A new node is created, which contains data `x`.
- *
- * @param x The data content of the node
- *
- * @return a new node
- *
- * @throw Mem_Failed
- */
-extern T RBTree_new(const void *data);
-
-/**
  * @brief Copies a tree
  *
  * Copies a tree. If the function pointer copy_data is NULL then
