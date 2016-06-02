@@ -5,12 +5,12 @@
 
 #define T NTree_T
 
-struct NTree_T {
+struct T {
     void *data;
     T prev, child, sibling;
 };
 
-static T NTree_new(void *data) {
+inline static T tree_new(void *data) {
     T tree;
     NEW(tree);
     *tree = (struct NTree_T) {
@@ -48,7 +48,7 @@ void NTree_free(T *treep,
     	void *(free_data)(void *data, void *cl), void *cl) {
     T tree = *treep, prev;
     while (tree) {
-	if (tree->sibling == NULL & tree->child == NULL) {
+	if (tree->sibling == NULL && tree->child == NULL) {
 	    prev = tree->prev;
 	    FREE(tree);
 	    tree = prev;
@@ -65,14 +65,14 @@ unsigned int NTree_is_empty(const T tree) {
     return !tree;
 }
 
-int size(void **data, int *cl) {
+int size_fun(void **data, int *cl) {
     *cl += 1;
     return 0;
 }
 
 unsigned int NTree_size(const T tree) {
     unsigned int cl = 0;
-    NTree_traverse(tree, (int (*)(void **, void *))size, &cl);
+    NTree_traverse(tree, (int (*)(void **, void *))size_fun, &cl);
     return cl;
 }
 
@@ -83,13 +83,13 @@ struct occurrances_cl {
     void *data;
 };
 
-int occurrances(void **datap, struct occurrances_cl *cl) {
+int occurrances_fun(void **datap, struct occurrances_cl *cl) {
     if (cl->cmp(*datap, cl->data, cl->cl) == 0)
 	cl->counter += 1;
     return 0;
 }
 
-unsigned int NTree_occurrances(const T tree, void *data,
+unsigned int NTree_occurrances(const T tree, const void *data,
 	int (*cmp)(const void *data1, const void *data2, void *cl),
 	void *cl) {
     struct occurrances_cl ocl = {
@@ -98,11 +98,11 @@ unsigned int NTree_occurrances(const T tree, void *data,
 	.cl = cl,
 	.data = data,
     };
-    NTree_traverse(tree, (int (*)(void **, void *))occurrances, &ocl);
+    NTree_traverse(tree, (int (*)(void **, void *))occurrances_fun, &ocl);
     return ocl.counter;
 }
 
-int occurs(void **datap, struct occurrances_cl *cl) {
+int occurs_fun(void **datap, struct occurrances_cl *cl) {
     if (cl->cmp(*datap, cl->data, cl->cl) == 0) {
 	cl->counter = 1;
 	return 1;
@@ -119,7 +119,7 @@ int NTree_occurs(const T tree, void *data,
 	.cl = cl,
 	.data =data
     };
-    NTree_traverse(tree, (int (*)(void **, void *))occurs, &ocl);
+    NTree_traverse(tree, (int (*)(void **, void *))occurs_fun, &ocl);
     return ocl.counter;
 }
 
@@ -147,164 +147,119 @@ void NTree_traverse(T tree,
     }
 }
 
-#undef T
-
-#define T NTCursor_T
-
-struct T {
-    NTree_T tree;
-};
-
-T NTCursor_new(NTree_T tree) {
-    assert(tree);
-    T cursor;
-    NEW(cursor);
-    cursor->tree = tree;
-    return cursor;
-}
-
-void NTCursor_free(NTCursor_T *cursorp) {
-    FREE(*cursorp);
-}
-
-inline static int prev_is_parent(NTree_T tree) {
+inline static int prev_is_parent(T tree) {
     return tree && tree->prev->child == tree;
 }
 
-inline static int prev_is_sibling(NTree_T tree) {
+inline static int prev_is_sibling(T tree) {
     return tree && tree->prev->sibling == tree;
 }
 
-inline static int is_root(NTree_T tree) {
+inline static int is_root(T tree) {
     return tree && tree->prev == NULL;
 }
 
 // Movement
 
-void NTCursor_first(T cursor) {
-    assert(cursor && cursor->tree);
-    while (prev_is_sibling(cursor->tree)) {
-	cursor->tree = cursor->tree->prev;
+T NTree_first(const T tree) {
+    while (prev_is_sibling(tree)) {
+	tree = tree->prev;
     }
+    return tree;
 }
 
-int NTCursor_next(T cursor) {
-    assert(cursor && cursor->tree);
-    if (cursor->tree->child) {
-	cursor->tree = cursor->tree->child;
-	return 1;
-    }
-    else
-	return 0;
+T NTree_next(const T tree) {
+    return tree ? tree->sibling : NULL;
 }
 
-int NTCursor_previous(T cursor) {
-    assert(cursor && cursor->tree);
-    if (prev_is_sibling(cursor->tree)) {
-	cursor->tree = cursor->tree->prev;
-	return 1;
-    }
-    else
-	return 0;
+T NTree_previous(const T tree) {
+    return tree && prev_is_sibling ? tree->prev : NULL;
 }
 
-void NTCursor_last(T cursor) {
-    assert(cursor && cursor->tree);
-    while (cursor->tree->child) {
-	cursor->tree = cursor->tree->child;
-    }
+void NTree_last(const T tree) {
+    if (tree)
+        while (tree->sibling)
+	    tree = tree->sibling;
+    return tree;
 }
 
-static int find_entry(NTree_T tree, void *data,
+T NTree_find(const T tree, const void *data,
         int (*cmp)(const void *data1, const void *data2, void *cl),
 	void *cl) {
-    return tree
-	   && ((cmp(data, tree->data, cl) == 0)
-	       || find_entry(tree->child, data, cmp, cl)
-	       || find_entry(tree->sibling, data, cmp, cl));
+    if (tree) {
+	if (!tree || (cmp(data, tree->data, cl) == 0))
+	    return tree;
+	else
+	    return find_entry(tree->child, data, cmp, cl)
+		   || find_entry(tree->sibling, data, cmp, cl);
 }
 
-int NTCursor_find(T cursor, void *data,
-   	int (*cmp)(const void *data1, const void *data2, void *cl),
-        void *cl) {
-    assert(cursor && cursor->tree);
-    return find_entry(cursor->tree, data, cmp, cl);
+T NTree_root(const T tree) {
+    if (tree)
+	while (tree->prev)
+	  tree = tree->prev;
+    return tree;
 }
 
-void NTCursor_root(T cursor) {
-    assert(cursor && cursor->tree);
-    while (cursor->tree->prev)
-	cursor->tree = cursor->tree->prev;
-}
-
-int NTCursor_first_child(T cursor) {
-    assert(cursor && cursor->tree);
-    if (cursor->tree->child) {
-	cursor->tree = cursor->tree->child;
-	return 1;
-    }
-    else
-	return 0;
+T NTree_first_child(const T tree) {
+    return tree ? tree->child : NULL;
 }
 
 // Tests
 
-int NTCursor_on_first(T cursor) {
-    assert(cursor && cursor->tree);
-    return prev_is_parent(cursor->tree);
+int NTree_is_first_sibling(const T tree) {
+    return tree && prev_is_parent(tree);
 }
 
-int NTCursor_on_last(T cursor) {
-    assert(cursor && cursor->tree);
-    return cursor->tree->sibling == NULL;
+int NTree_is_last_sibling(const T tree) {
+    return tree && !tree->sibling;
 }
 
-int NTCursor_on_root(T cursor) {
-    assert(cursor);
-    return is_root(cursor->tree);
+int NTree_is_root(const T tree) {
+    return tree && !tree->prev;
 }
 
-int NTCursor_has_children(T cursor) {
-    assert(cursor && cursor->tree);
-    return cursor->tree->child != NULL;
+int NTree_has_children(const T tree) {
+    return tree && tree->child;
 }
 
 // Data
 
-void *NTCursor_get(T cursor) {
-    assert(cursor && cursor->tree);
-    return cursor->tree->data;
+void *NTree_data(const T tree) {
+    assert(tree);
+    return tree->data;
 }
 
-void *NTCursor_set(T cursor, void *data) {
-    assert(cursor && cursor->tree);
-    void *old_data = cursor->tree->data;
-    cursor->tree->data = data;
+void *NTree_set_data(T tree, const void *data) {
+    assert(tree);
+    void *old_data = tree->data;
+    tree->data = data;
     return old_data;
 }
 
 // Mutation
 
-void NTCursor_prepend_child(T cursor, void *data) {
-    assert(cursor && cursor->tree);
-    NTree_T new_tree = NTree_new(data);
-    new_tree->child = cursor->tree->child;
-    new_tree->prev = cursor->tree;
-    new_tree->child->prev = new_tree;
-    cursor->tree->child = new_tree;
+void NTree_prepend_child(T tree, const void *data) {
+    assert(tree);
+    if (tree->child)
+	NTree_insert_before(tree->child, data);
+    else
+	tree->child = tree_new(data);
 }
 
-void NTCursor_append_child(T cursor, void *data) {
-    T new_cursor = NTCursor_new(cursor->tree);
-    NTCursor_first_child(new_cursor);
-    NTCursor_last(new_cursor);
-    NTCursor_insert_after(new_cursor, data);
-    NTCursor_free(&new_cursor);
+void NTree_append_child(T tree, const void *data) {
+    assert(tree);
+    if (tree->child)
+	NTree_insert_after(NTree_last(tree->child), data);
+    else
+	tree->child = tree_new(data);
 }
+
+// *** CONTINUE HERE ***
 
 void NTCursor_insert_before(T cursor, void *data) {
     assert(cursor);
-    NTree_T new_tree = NTree_new(data);
+    NTree_T new_tree = tree_new(data);
     if (cursor->tree) {
 	new_tree->sibling = cursor->tree;
 	if (prev_is_parent(cursor->tree)) {
@@ -319,10 +274,11 @@ void NTCursor_insert_before(T cursor, void *data) {
 
 void NTCursor_insert_after(T cursor, void *data) {
     assert(cursor);
-    NTree_T new_tree = NTree_new(data);
+    NTree_T new_tree = tree_new(data);
     if (cursor->tree) {
 	new_tree->sibling = cursor->tree->sibling;
 	cursor->tree->sibling = new_tree;
+    }
     else
 	cursor->tree = new_tree;
 }

@@ -10,12 +10,9 @@ typedef struct T *T;
  *
  * Each node in an NTree can have siblings and children.
  *
- * The empty tree is just NULL. Data can be entered in a tree by
- * setting a NTCursor on a tree and by then using the functions
- * `NTCursor_insert_before`, `NTCursor_insert_after`,
- * `NTCursor_prepend_child` and `NTCursor_append_child`. Only the
- * `insert` functions can be used on empty trees. They behave the
- * same on empty trees.
+ * The empty tree is just NULL. The first data has to be entered in
+ * a tree using `NTree_insert_before` or `NTree_insert_after`, which
+ * behave the same in this case.
  */
 
 /**
@@ -81,7 +78,7 @@ extern unsigned int NTree_size(const T tree);
  *
  * @return 1 if an entry was found, 0 otherwise.
  */
-extern int NTree_occurs(const T tree, void *data,
+extern int NTree_occurs(const T tree, const void *data,
     int (*comp)(const void *data1, const void *data2, void *cl), void *cl);
 
 /**
@@ -98,7 +95,7 @@ extern int NTree_occurs(const T tree, void *data,
  *
  * @return The number of occurrances
  */
-extern unsigned int NTree_occurrances(const T tree, void *data,
+extern unsigned int NTree_occurrances(const T tree, const void *data,
     int (*comp)(const void *data1, const void *data2, void *cl), void *cl);
 
 /**
@@ -111,173 +108,152 @@ extern unsigned int NTree_occurrances(const T tree, void *data,
 extern void NTree_traverse(T tree,
     int (*apply)(void **datap, void *cl), void *cl);
 
-#undef T
-
-#define T NTCursor_T
-
-typedef struct T *T;
-
-/**
- * Make a new cursor and connect it to a tree.
- *
- * @param tree The root of the tree
- *
- * @return A new cursor
- *
- * @throw Mem_Failed
- */
-extern T NTCursor_new(NTree_T tree);
-
 // Movement
 
 /**
- * Ensures that the cursor is on the first sibling of the current
- * position.
+ * @brief Get the first sibling.
+ * 
+ * Get the first sibling of all siblings of this entry.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * @param tree The tree
  *
- * @param cursor The cursor
+ * @return The first sibling or NULL if there is none.
  */
-extern void NTCursor_first(T cursor);
+extern T NTree_first(const T tree);
 
 /**
- * Move to the next sibling of the current position.
+ * @brief Get the next sibling of the current entry.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * Get the next neighboring sibling of this entry.
  *
- * @param cursor The cursor
+ * @param tree The tree
  *
- * @return 1 if there is a next sibling, 0 otherwise.
+ * @return The next sibling or NULL if there is none.
  */
-extern int NTCursor_next(T cursor);
+extern T NTree_next(const T tree);
 
 /**
- * Move to the previous sibling of the current position.
+ * @brief Get the previous sibling.
  *
- * @param cursor The cursor
+ * Get the previous neighboring sibling of this entry.
  *
- * @return 1 if there is a previous sibling, 0 otherwise.
+ * @param tree The tree
+ *
+ * @return The previous sibling or NULL if there is none.
  */
-extern int NTCursor_previous(T cursor);
+extern T NTree_previous(const T tree);
 
 /**
- * Ensures that the cursor is on the last sibling.
+ * @brief Get the last sibling.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * Get the last of all siblings of this entry.
  *
- * @param cursor The cursor
+ * @param tree The tree
+ *
+ * @return The last sibling or NULL if there is none.
  */
-extern void NTCursor_last(T cursor);
+extern T NTree_last(const T tree);
 
 /**
- * @brief Move the cursor to the occurrance of an entry.
+ * @brief Get the next occurrance of an entry.
  *
- * Move the cursor to the position of the next occurrance of
- * data. The current position is also checked. The position is found
- * if the comparison function returns 0.
+ * Get the next occurrance of an entry. The current position
+ * is also checked. The position is found if the comparison function
+ * returns 0.
  *
- * Must not be called if the cursor is set to an empty tree.
- *
- * @param cursor The cursor
+ * @param tree The tree
  * @param cmp The comparison function
  * @param cl Data passed unchanged to the comparison function
  *
- * @return 1 if the next occurrance was found, 0 otherwise
+ * @return The next occurrance or NULL if there is none.
  */
-extern int NTCursor_find(T cursor, void *data,
+extern T NTree_find(const T tree, const void *data,
     int (*cmp)(const void *data1, const void *data2, void *cl),
     void *cl);
 
 /**
- * Ensures that the cursor is on the root of the tree.
+ * @brief Get the root of the tree.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * @param tree The tree
  *
- * @param cursor The cursor
+ * @return The root of the tree or NULL if the tree is empty.
  */
-extern void NTCursor_root(T cursor);
+extern T NTree_root(const T tree);
 
 /**
- * Move the cursor to the first child of this position.
+ * @brief Get the first child.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * @param tree The tree
  *
- * @param cursor The cursor
- *
- * @return 1 if there is a child, 0 otherwise.
+ * @return The first child or NULL if there is none.
  */
-extern int NTCursor_first_child(T cursor);
+extern T NTree_first_child(const T tree);
 
 // Tests
 
 /**
- * Tests whether the cursor is on the first sibling.
+ * @brief Tests whether this is the first sibling.
  *
- * @param cursor The cursor
+ * @param tree The tree
  *
- * Must not be called if the cursor is set to an empty tree.
- *
- * @return 1 if the cursor is on the first sibling, 0 otherwise
+ * @return 1 if this is the first sibling, 0 otherwise
  */
-extern int NTCursor_on_first(T cursor);
+extern int NTree_on_first(const T tree);
 
 /**
- * Tests whether the cursor is on the last sibling.
+ * @brief Tests whether this is the last sibling.
  *
- * Must not be called if the cursor is set to an empty tree.
- * 
- * @param cursor The cursor
+ * @param tree The tree
  *
- * @return 1 if the cursor is on the last sibling, 0 otherwise.
+ * @return 1 if is the last sibling, 0 otherwise.
  */
-extern int NTCursor_on_last(T cursor);
+extern int NTree_on_last(const T tree);
 
 /**
- * Tests whether the cursor is on the root of the tree.
+ * @brief Tests whether the cursor is on the root of the tree.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * @param tree The tree
  *
- * @param cursor The cursor
- *
- * @return 1 if the cursor is on the root of the tree, 0 otherwise.
+ * @return 1 if this is the root of the tree, 0 otherwise.
  */
-extern int NTCursor_on_root(T cursor);
+extern int NTree_on_root(const T tree);
 
 /**
- * Tests if the current position of the cursor has children.
+ * @brief Tests if there are children.
  *
- * Must not be called if the cursor is set to an empty tree.
- *
- * @param cursor The cursor
+ * @param tree The tree
  *
  * @return 1 if this parent has children, 0 otherwise.
  */
-extern int NTCursor_has_children(T cursor);
+extern int NTCursor_has_children(const T tree);
 
 // Data
 
 /**
- * Get the data of the current position.
+ * @brief Get the data of the current entry.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * Get the data of the current entry. It is an error to
+ * call this function on an empty tree.
  *
- * @param cursor The cursor
+ * @param tree The tree
  *
  * @return The data
  */
-extern void *NTCursor_get(T cursor);
+extern void *NTree_data(const T tree);
 
 /**
- * Set the data at the current position and return the old data.
+ * @brief Set the data of the current entry and return the old data.
  *
- * Must not be called if the cursor is set to an empty tree.
+ * Set the data of the entry at the current position and
+ * return the old data. It is an error to call this function
+ * on an empty tree.
  *
- * @param cursor The cursor
+ * @param tree The tree
  * @param data The new data
  *
- * @return The old data
+ * @return The old data or NULL if there was none
  */
-extern void *NTCursor_set(T cursor, void *data);
+extern void *NTree_set_data(T tree, const void *data);
 
 // Mutation
 
@@ -285,73 +261,65 @@ extern void *NTCursor_set(T cursor, void *data);
  * @brief Prepend a child
  *
  * Insert a child at the start of the list of children of the current
- * position. The cursor stays at the current position, i.e. at the parent.
+ * position. It is an error to call this function on an empty tree.
  *
- * Must not be called if the cursor is set to an empty tree.
- *
- * @param cursor The cursor
+ * @param tree The tree
  * @param data The data of the new child
  *
  * @throw Mem_Failed
  */
-extern void NTCursor_prepend_child(T cursor, void *data);
+extern void NTree_prepend_child(T tree, const void *data);
 
 /**
  * @brief Append a child
  *
  * Insert a child at the end of the list of children of the current
- * position. The cursor stays at the current position, i.e. at the parent.
+ * position.
  *
- * @param cursor The cursor
+ * @param tree The tree
  * @param data The data of the new sibling
  *
  * @throw Mem_Failed
  */
-extern void NTCursor_append_child(T cursor, void *data);
+extern void NTree_append_child(T tree, const void *data);
 
 /**
- * @brief Prepend a sibling
+ * @brief Insert a sibling before the current position.
  *
- * Insert a sibling before the current position of the cursor.
- * The cursor stays at the current position.
- *
- * Must not be called if the cursor is set to an empty tree.
- *
- * @param cursor The cursor
+ * @param tree The tree
  * @param data The data of the new sibling
  *
  * @throw Mem_Failed
  */
-extern void NTCursor_insert_before(T cursor, void *data);
+extern void NTree_insert_before(T tree, void *data);
 
 /**
- * @brief Append a sibling
- *
- * Insert a sibling after the current position of the cursor.
- * The cursor stays at the current position.
+ * @brief Insert a sibling after the current position.
  *
  * @param cursor The cursor
  * @param data The data of the new sibling
  *
  * @throw Mem_Failed
  */
-extern void NTCursor_insert_after(T cursor, void *data);
+extern void NTree_insert_after(T tree, void *data);
 
 /**
  * @brief Remove the entry at the current position
  *
  * Remove the entry at the current position of the cursor if it has
- * no children. The data of the current position is returned if the node
- * was removed or NULL if it could not be removed.
- * The cursor moves to the next sibling if there is one or
- * to the previous sibling if there is no next sibling but a
- * previous one or to the parent if there are no siblings left.
+ * no children and free its memory (but not the memory of the data).
  *
- * Must not be called if the cursor is set to an empty tree.
+ * The value returned is
+ *   1) the next sibling if there is one or
+ *   2) the previous sibling if there is no next sibling but a
+ *      previous one or
+ *   3) the parent if there are no siblings left.
  *
- * @param cursor The cursor
+ * @param treep A pointer to the current position, will be set to NULL.
+ *
+ * @return The new position
  */
-extern void *NTCursor_remove(T cursor);
+extern T NTree_remove(T *treep);
 
 #undef T
 
