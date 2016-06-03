@@ -5,6 +5,14 @@
 
 typedef struct T *T;
 
+typedef void *(*NTree_copy_data_fun_T)(const void *data, void *cl);
+
+typedef void *(*NTree_free_data_fun_T)(void *data, void *cl);
+
+typedef int (*NTree_compare_fun_T)(const void *data1, const void *data2, void *cl);
+
+typedef void (*NTree_apply_fun_T)(void **datap, void *cl);
+
 /**
  * NTrees represent structured data.
  *
@@ -29,8 +37,8 @@ typedef struct T *T;
  *
  * @throw Mem_Failed
  */
-extern T NTree_copy(const T tree,
-    void *(*copy_data)(const void *data, void *cl), void *cl);
+extern T NTree_copy(const T tree, NTree_copy_data_fun_T copy_data,
+    void *cl);
 
 /**
  * @brief Free a tree.
@@ -42,17 +50,8 @@ extern T NTree_copy(const T tree,
  * @param free_data The function to free the data
  * @param cl Data passed unchanged to `free_data`
  */
-extern void NTree_free(T *treep,
-    void *(free_data)(void *data, void *cl), void *cl);
-
-/**
- * Tests whether a tree is empty.
- *
- * @param tree The root of the tree
- *
- * @return 1 if the tree is empty, 0 otherwise.
- */
-extern unsigned int NTree_is_empty(const T tree);
+extern void NTree_free(T *treep, NTree_free_data_fun_T free_data,
+    void *cl);
 
 /**
  * Calculates the size of a tree.
@@ -62,24 +61,6 @@ extern unsigned int NTree_is_empty(const T tree);
  * @return The number of entries in the tree.
  */
 extern unsigned int NTree_size(const T tree);
-
-/**
- * @brief Tests if an entry occurs in a tree.
- *
- * An entry is searched in the tree by comparing some data to
- * the data of the entries using a comparison function. As soon
- * as the comparison function returns 0 this function returns 1.
- * If no entry was found it returns 0.
- *
- * @param tree The root of the tree
- * @param data The data with which each entry is compared
- * @param comp The comparison function
- * @param cl Data passed unchanged to comp
- *
- * @return 1 if an entry was found, 0 otherwise.
- */
-extern int NTree_occurs(const T tree, const void *data,
-    int (*comp)(const void *data1, const void *data2, void *cl), void *cl);
 
 /**
  * @brief Returns the number of occurrances of an entry in a tree.
@@ -96,7 +77,7 @@ extern int NTree_occurs(const T tree, const void *data,
  * @return The number of occurrances
  */
 extern unsigned int NTree_occurrances(const T tree, const void *data,
-    int (*comp)(const void *data1, const void *data2, void *cl), void *cl);
+    NTree_compare_fun_T cmp, void *cl);
 
 /**
  * @brief Apply a function to the data of each entry in a tree.
@@ -105,8 +86,7 @@ extern unsigned int NTree_occurrances(const T tree, const void *data,
  * @param apply The function to apply
  * @param cl Data passed unchanged to the applied function
  */
-extern void NTree_traverse(T tree,
-    int (*apply)(void **datap, void *cl), void *cl);
+extern void NTree_traverse(T tree, NTree_apply_fun_T apply, void *cl);
 
 // Movement
 
@@ -168,8 +148,7 @@ extern T NTree_last(const T tree);
  * @return The next occurrance or NULL if there is none.
  */
 extern T NTree_find(const T tree, const void *data,
-    int (*cmp)(const void *data1, const void *data2, void *cl),
-    void *cl);
+    NTree_compare_fun_T cmp, void *cl);
 
 /**
  * @brief Get the root of the tree.
@@ -253,7 +232,7 @@ extern void *NTree_data(const T tree);
  *
  * @return The old data or NULL if there was none
  */
-extern void *NTree_set_data(T tree, const void *data);
+extern void *NTree_set_data(T tree, void *data);
 
 // Mutation
 
@@ -268,7 +247,7 @@ extern void *NTree_set_data(T tree, const void *data);
  *
  * @throw Mem_Failed
  */
-extern void NTree_prepend_child(T tree, const void *data);
+extern void NTree_prepend_child(T tree, void *data);
 
 /**
  * @brief Append a child
@@ -281,7 +260,7 @@ extern void NTree_prepend_child(T tree, const void *data);
  *
  * @throw Mem_Failed
  */
-extern void NTree_append_child(T tree, const void *data);
+extern void NTree_append_child(T tree, void *data);
 
 /**
  * @brief Insert a sibling before the current position.
@@ -290,8 +269,10 @@ extern void NTree_append_child(T tree, const void *data);
  * @param data The data of the new sibling
  *
  * @throw Mem_Failed
+ *
+ * @return The newly inserted entry.
  */
-extern void NTree_insert_before(T tree, void *data);
+extern T NTree_insert_before(T tree, void *data);
 
 /**
  * @brief Insert a sibling after the current position.
@@ -300,8 +281,10 @@ extern void NTree_insert_before(T tree, void *data);
  * @param data The data of the new sibling
  *
  * @throw Mem_Failed
+ *
+ * @return The newly inserted entry
  */
-extern void NTree_insert_after(T tree, void *data);
+extern T NTree_insert_after(T tree, void *data);
 
 /**
  * @brief Remove the entry at the current position
@@ -315,11 +298,11 @@ extern void NTree_insert_after(T tree, void *data);
  *      previous one or
  *   3) the parent if there are no siblings left.
  *
- * @param treep A pointer to the current position, will be set to NULL.
+ * @param tree The tree
  *
  * @return The new position
  */
-extern T NTree_remove(T *treep);
+extern T NTree_remove(T tree);
 
 #undef T
 

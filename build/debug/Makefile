@@ -1,4 +1,4 @@
-CFLAGS += -std=c99 -Wall -pedantic -g -O0
+CFLAGS += -Wall -pedantic -g -O0
 $(TARGET): $(OBJS)
 	ar -cr $(.TARGET) $(.ALLSRC)
 

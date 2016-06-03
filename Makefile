@@ -1,4 +1,4 @@
-MAKE = bmake
+MAKE = make
 CFLAGS = -std=c99
 SRCS = ap.c arena.c arith.c array.c assert.c atom.c bit.c btree.c \
     except.c fmt.c list.c mem.c mp.c rbtree.c ring.c seq.c set.c \
