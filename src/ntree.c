@@ -42,8 +42,21 @@ T NTree_copy(const T tree, NTree_copy_data_fun_T copy_data, void *cl) {
     return copy(tree, copy_data, cl, NULL);
 }
 
+inline static int prev_is_parent(T tree) {
+    return tree && tree->prev && tree->prev->child == tree;
+}
+
+inline static int prev_is_sibling(T tree) {
+    return tree && tree->prev && tree->prev->sibling == tree;
+}
+
 void NTree_free(T *treep, NTree_free_data_fun_T free_data, void *cl) {
     T temp;
+    if (prev_is_parent(*treep))
+	(*treep)->prev->child = NULL;
+    else if (prev_is_sibling(*treep))
+	(*treep)->prev->sibling = NULL;
+
     while (*treep) {
 	if ((*treep)->sibling) {
 	    temp = (*treep)->sibling;
@@ -120,14 +133,6 @@ void NTree_traverse(T tree, NTree_apply_fun_T apply, void *cl) {
 	    tree = tree->sibling;
 	}
     }
-}
-
-inline static int prev_is_parent(T tree) {
-    return tree && tree->prev && tree->prev->child == tree;
-}
-
-inline static int prev_is_sibling(T tree) {
-    return tree && tree->prev && tree->prev->sibling == tree;
 }
 
 // Movement
