@@ -20,7 +20,7 @@ int main() {
     puts("Tree");
     NTree_traverse(tree, (NTree_apply_fun_T)pr, NULL);
 
-    root = NTree_root(tree);
+    root = NTree_absolute_root(tree);
     puts("Root");
     NTree_traverse(root, (NTree_apply_fun_T)pr, NULL);
     NTree_free(&tree, NULL, NULL);

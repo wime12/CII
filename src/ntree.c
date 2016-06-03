@@ -171,7 +171,7 @@ T NTree_find(const T tree, const void *data, NTree_compare_fun_T cmp,
     }
 }
 
-T NTree_root(const T tree) {
+T NTree_absolute_root(const T tree) {
     T t = tree;
     if (t)
 	while (t->prev)
@@ -185,15 +185,15 @@ T NTree_first_child(const T tree) {
 
 // Tests
 
-int NTree_is_first_sibling(const T tree) {
+int NTree_is_first(const T tree) {
     return tree && prev_is_parent(tree);
 }
 
-int NTree_is_last_sibling(const T tree) {
+int NTree_is_last(const T tree) {
     return tree && !tree->sibling;
 }
 
-int NTree_is_root(const T tree) {
+int NTree_is_absolute_root(const T tree) {
     return tree && !tree->prev;
 }
 
@@ -260,17 +260,17 @@ T NTree_insert_after(T tree, void *data) {
     return new_tree;
 }
 
-T NTree_remove(T tree) {
-    if (tree->child)
+T NTree_remove(T *treep) {
+    if ((*treep)->child)
 	return NULL;
     else {
 	T next;
-	if (prev_is_sibling(tree))
-	    tree->prev->sibling = tree->sibling;
-        else if (prev_is_parent(tree))
-	    tree->prev->child = tree->sibling;
-	next = tree->sibling ? tree->sibling : tree->prev;
-	FREE(tree);
+	if (prev_is_sibling(*treep))
+	    (*treep)->prev->sibling = (*treep)->sibling;
+        else if (prev_is_parent(*treep))
+	    (*treep)->prev->child = (*treep)->sibling;
+	next = (*treep)->sibling ? (*treep)->sibling : (*treep)->prev;
+	FREE(*treep);
 	return next;
     }
 }
