@@ -312,21 +312,18 @@ extern T NTree_insert_after(T tree, void *data);
  * Remove the entry at the current position of the cursor if it has
  * no children and free its memory (but not the memory of the data).
  *
- * The returned value is
- *   0) NULL if this entry was not removed 
- *   1) the next sibling if there is one or
- *   2) the previous sibling if there is no next sibling but a
+ * The pointer to the root is
+ *   0) unchanged if the entry was not removed
+ *   1) set to the next sibling if there is one or
+ *   2) set to the previous sibling if there is no next sibling but a
  *      previous one or
- *   3) the parent if there are no siblings left.
- *
- * The pointer to the entry is set to NULL if the entry was removed
- * or it stays unchanged.
+ *   3) set to the parent if there are no siblings left.
  *
  * @param tree A pointer to the root of a tree
  *
- * @return The new position
+ * @return The data of the freed entry or NULL if the entry was not freed
  */
-extern T NTree_remove(T *treep);
+extern void *NTree_remove(T *treep);
 
 #undef T
 

@@ -23,6 +23,9 @@ int main() {
     root = NTree_absolute_root(tree);
     puts("Root");
     NTree_traverse(root, (NTree_apply_fun_T)pr, NULL);
+    puts("Tree after remove");
+    NTree_remove(&tree);
+    NTree_traverse(tree, (NTree_apply_fun_T)pr, NULL);
     NTree_free(&tree, NULL, NULL);
     puts("Root after delete");
     NTree_traverse(root, (NTree_apply_fun_T)pr, NULL);

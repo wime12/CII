@@ -260,7 +260,8 @@ T NTree_insert_after(T tree, void *data) {
     return new_tree;
 }
 
-T NTree_remove(T *treep) {
+void *NTree_remove(T *treep) {
+    void *data;
     if ((*treep)->child)
 	return NULL;
     else {
@@ -270,8 +271,10 @@ T NTree_remove(T *treep) {
         else if (prev_is_parent(*treep))
 	    (*treep)->prev->child = (*treep)->sibling;
 	next = (*treep)->sibling ? (*treep)->sibling : (*treep)->prev;
+	data = (*treep)->data;
 	FREE(*treep);
-	return next;
+	*treep = next;
+	return data;
     }
 }
 
