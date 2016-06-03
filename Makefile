@@ -1,4 +1,4 @@
-MAKE = make
+MAKE = bmake
 CFLAGS = -std=c99
 SRCS = ap.c arena.c arith.c array.c assert.c atom.c bit.c btree.c \
     except.c fmt.c list.c mem.c mp.c rbtree.c ring.c seq.c set.c \
@@ -8,15 +8,15 @@ OBJS = $(SRCS:.c=.o)
 INCLUDES=-I../../src
 TARGET = libcii.a
 
-.export SRCS SRCDIR OBJS INCLUDES TARGET CFLAGS
+.export SRCS SRCDIR OBJS INCLUDES TARGET
 
 release:
-	cd build/release && $(MAKE)
+	cd build/release && $(MAKE) CFLAGS=$(CFLAGS)
 
 all: release debug
 
 debug:
-	cd build/debug && $(MAKE)
+	cd build/debug && $(MAKE) CFLAGS=$(CFLAGS)
 
 install: all
 	mkdir -p $(PREFIX)/include/cii

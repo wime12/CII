@@ -8,7 +8,7 @@ void pr(int **data, void *cl) {
 
 int main() {
     NTree_T tree = NULL, root;
-    int numbers[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int numbers[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
     tree = NTree_insert_before(tree, &numbers[2]);
     NTree_insert_after(tree, &numbers[5]);
@@ -17,11 +17,15 @@ int main() {
     NTree_append_child(tree, &numbers[6]);
     NTree_prepend_child(tree, &numbers[8]);
 
-    NTree_traverse(tree, (void (*)(void **, void *))pr, NULL);
+    puts("Tree");
+    NTree_traverse(tree, (NTree_apply_fun_T)pr, NULL);
 
     root = NTree_root(tree);
+    puts("Root");
+    NTree_traverse(root, (NTree_apply_fun_T)pr, NULL);
     NTree_free(&tree, NULL, NULL);
-    NTree_traverse(root, (void (*)(void **, void *))pr, NULL);
+    puts("Root after delete");
+    NTree_traverse(root, (NTree_apply_fun_T)pr, NULL);
     NTree_free(&root, NULL, NULL);
     
     return 0;

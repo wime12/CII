@@ -253,6 +253,7 @@ T NTree_insert_before(T tree, void *data) {
 T NTree_insert_after(T tree, void *data) {
     NTree_T new_tree = tree_new(data);
     if (tree) {
+	new_tree->prev = tree;
 	new_tree->sibling = tree->sibling;
 	tree->sibling = new_tree;
     }
