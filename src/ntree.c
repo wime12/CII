@@ -261,17 +261,15 @@ T NTree_insert_after(T tree, void *data) {
 }
 
 void *NTree_remove(T *treep) {
-    void *data;
     if ((*treep)->child)
 	return NULL;
     else {
-	T next;
 	if (prev_is_sibling(*treep))
 	    (*treep)->prev->sibling = (*treep)->sibling;
         else if (prev_is_parent(*treep))
 	    (*treep)->prev->child = (*treep)->sibling;
-	next = (*treep)->sibling ? (*treep)->sibling : (*treep)->prev;
-	data = (*treep)->data;
+	T next = (*treep)->sibling ? (*treep)->sibling : (*treep)->prev;
+	void *data = (*treep)->data;
 	FREE(*treep);
 	*treep = next;
 	return data;
