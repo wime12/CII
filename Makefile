@@ -1,4 +1,4 @@
-MAKE = bmake
+MAKE = make
 CFLAGS = -std=c99
 SRCS = ap.c arena.c arith.c array.c assert.c atom.c bit.c btree.c \
     except.c fmt.c list.c mem.c mp.c rbtree.c ring.c seq.c set.c \
@@ -25,7 +25,7 @@ install: all
 	cp src/*.h $(PREFIX)/include/cii
 
 clean: clean-release clean-debug
-	rm -f a.* ntree ntree-dbg
+	rm -f a.* ntree ntree-dbg rbtree rbtree-dbg
 
 clean-release:
 	cd build/release && $(MAKE) clean
@@ -38,3 +38,9 @@ ntree: release
 
 ntree-dbg: debug
 	cc -std=c99 -Wall -pedantic -I src -g -o ntree-dbg examples/ntree.c build/debug/libcii.a
+
+rbtree: release
+	cc -std=c99 -Wall -pedantic -I src -O2 -o rbtree examples/rbtree.c build/release/libcii.a
+
+rbtree-dbg: debug
+	cc -std=c99 -Wall -pedantic -I src -g -o rbtree-dbg examples/rbtree.c build/debug/libcii.a
