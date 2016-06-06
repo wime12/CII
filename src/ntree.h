@@ -22,7 +22,7 @@ typedef void (*NTree_apply_fun_T)(void **datap, void *cl);
  * a tree using `NTree_insert_before` or `NTree_insert_after`, which
  * behave the same in this case.
  *
- * The root of the current subtree is just called "root". If the root of 
+ * The root of the current subtree is just called "root". If the root of
  * a tree does not have a predecessor, i.e. it has neither preceding siblings
  * nor a parent, then it is called an "absolute root" and the tree starting
  * at this absolute root is called the "whole tree".
@@ -111,14 +111,14 @@ extern void NTree_traverse(T tree, NTree_apply_fun_T apply, void *cl);
 
 /**
  * @brief Get the first sibling of this root.
- * 
+ *
  * Get the first sibling in the list of siblings.
  *
  * @param tree The root of a tree
  *
  * @return The first sibling or NULL if there is none.
  */
-extern T NTree_first(const T tree);
+extern T NTree_first_child(const T tree);
 
 /**
  * @brief Get the next sibling of this root.
@@ -225,7 +225,7 @@ extern int NTree_is_absolute_root(const T tree);
  *
  * @return 1 if there are children, 0 otherwise.
  */
-extern int NTCursor_has_children(const T tree);
+extern int NTree_has_children(const T tree);
 
 // Data
 

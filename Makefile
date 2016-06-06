@@ -25,7 +25,7 @@ install: all
 	cp src/*.h $(PREFIX)/include/cii
 
 clean: clean-release clean-debug
-	rm -f a.* ntree ntree-dbg rbtree rbtree-dbg
+	rm -f a.* ntree ntree-dbg rbtree rbtree-dbg *.core
 
 clean-release:
 	cd build/release && $(MAKE) clean

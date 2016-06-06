@@ -117,7 +117,7 @@ void NTree_traverse(T tree, NTree_apply_fun_T apply, void *cl) {
     while (tree) {
 	if ((temp = tree->child)) {
 	    while (temp->sibling && temp->sibling != tree)
-		temp = temp->sibling;
+	        temp = temp->sibling;
 	    if (temp->sibling == NULL) {
 		temp->sibling = tree;
 		tree = tree->child;
@@ -150,7 +150,7 @@ T NTree_next(const T tree) {
 }
 
 T NTree_previous(const T tree) {
-    return tree && prev_is_sibling ? tree->prev : NULL;
+    return tree && prev_is_sibling(tree) ? tree->prev : NULL;
 }
 
 T NTree_last(const T tree) {
